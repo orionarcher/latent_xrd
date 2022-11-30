@@ -53,7 +53,9 @@ class XRDDataset(Dataset):
     
     def __getitem__(self, index: int) -> np.ndarray:
         """Returns an XRD spectra array with shape (10005,)."""
-        return self.xrd[index]
+
+        # Last 5 elements in XRD data aren't part of the spectra
+        return self.xrd[index][:-5]
 
 
 xrd_dataset = XRDDataset(XRD_DATA_PATH)
