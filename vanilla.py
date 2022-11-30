@@ -64,7 +64,7 @@ xrd_dataloader = DataLoader(
 
 
 print('start training')
-num_epochs = 1
+num_epochs = 100
 outputs = []
 for epoch in range(num_epochs):
     for data in xrd_dataloader:
