@@ -37,6 +37,14 @@ class Autoencorders(nn.Module):
         encoded = self.encoder(x)
         decoded = self.decoder(encoded)
         return decoded
+
+
+model = Autoencorders()
+model= nn.DataParallel(model)
+model.to(device)
+criterion = nn.MSELoss()
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-5)
+
 print('----------------------------------------------------------------')
 
 for param_tensor in model.state_dict():
@@ -55,11 +63,6 @@ xrd_dataloader = DataLoader(
 )
 
 
-model = Autoencorders()
-model= nn.DataParallel(model)
-model.to(device)
-criterion = nn.MSELoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-5)
 print('start training')
 num_epochs = 1
 outputs = []
