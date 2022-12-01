@@ -42,7 +42,7 @@ def train_model(num_epochs=100):
     for epoch in range(num_epochs):
         for idx, data in enumerate(xrd_dataloader):
             data = data.float()
-
+            data = data.to(device)
             # Apply a mask to the batch
             masked_data = data.clone()
             batch_size = masked_data.size()[0]
