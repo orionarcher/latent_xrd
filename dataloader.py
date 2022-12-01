@@ -9,6 +9,8 @@ DataLoader.
 import h5py
 import numpy as np
 from os import path
+
+import torch
 from torch.utils.data import Dataset, DataLoader
 
 
@@ -55,8 +57,10 @@ class XRDDataset(Dataset):
         """Returns an XRD spectra array with shape (10005,)."""
 
         # Last 5 elements in XRD data aren't part of the spectra
-        return self.xrd[index][:-5]
+        sample = self.xrd[index][:-5]
 
+        # Add an axis to the array to fit the Perceiver input
+        return torch.from_numpy(sample)[None, :]
 
 xrd_dataset = XRDDataset(XRD_DATA_PATH)
 xrd_dataloader = DataLoader(
