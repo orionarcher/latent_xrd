@@ -96,9 +96,6 @@ def train_model(num_epochs=100):
             loss.backward()
             optimizer.step()
 
-            if idx % 5 == 0:
-                print(f"Finished batch {idx} in epoch {epoch + 1}. Loss: {loss.item():.4f}")
-
         print('epoch [{}/{}], loss:{:.4f}'.format(epoch + 1, num_epochs, loss.item()))
         outputs.append((epoch, data, output))
 
