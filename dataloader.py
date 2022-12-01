@@ -27,7 +27,7 @@ if not path.exists(XRD_DATA_PATH):
 # DataLoader parameters – These are yours to tweak. Feel free to modify them! #
 ###############################################################################
 
-BATCH_SIZE = 2
+BATCH_SIZE = 32
 SHUFFLE = True
 NUM_WORKERS = 0
 
