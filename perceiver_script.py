@@ -1,4 +1,6 @@
 import torch
+import torch.distributed as dist
+import torch.multiprocessing as mp
 from transformers import (
     PerceiverModel,
     PerceiverConfig,
@@ -6,14 +8,29 @@ from transformers import (
 from transformers.models.perceiver.modeling_perceiver import PerceiverBasicDecoder
 
 from torch import nn, optim
+from torch.nn.parallel import DistributedDataParallel as DDP
 
 from dataloader import xrd_dataloader
 from dataloader import XRDDataset
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+######################
+def setup(rank, world_size):
+    os.environ['MASTER_ADDR'] = 'localhost'
+    os.environ['MASTER_PORT'] = '12355'
+
+    # initialize the process group
+    dist.init_process_group("gloo", rank=rank, world_size=world_size)
+
+def cleanup():
+    dist.destroy_process_group()
+
+######################
+
+
 # Set up model
 
-config = PerceiverConfig(d_latent = 128, d_model=10000)
+config = PerceiverConfig(d_latents = 128, d_model=10000)
 decoder = PerceiverBasicDecoder(
     config,
     num_channels=config.d_latents,

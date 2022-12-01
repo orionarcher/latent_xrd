@@ -17,7 +17,7 @@ class Autoencorders(nn.Module):
     def __init__(self):
         super(Autoencorders, self).__init__()
         self.encoder = nn.Sequential(
-            nn.Linear(10005, 2048),
+            nn.Linear(10000, 2048),
             nn.ReLU(True),
             nn.Linear(2048, 1024),
             nn.ReLU(True),
@@ -30,7 +30,7 @@ class Autoencorders(nn.Module):
             nn.ReLU(True),
             nn.Linear(1024, 2048),
             nn.ReLU(True),
-            nn.Linear(2048, 10005),
+            nn.Linear(2048, 10000),
             nn.Sigmoid())
 
     def forward(self, x):
@@ -40,6 +40,7 @@ class Autoencorders(nn.Module):
 
 
 model = Autoencorders()
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model= nn.DataParallel(model)
 model.to(device)
 criterion = nn.MSELoss()
