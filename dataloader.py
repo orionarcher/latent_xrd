@@ -37,9 +37,7 @@ NUM_WORKERS = 0
 class XRDDataset(Dataset):
     """Represents an XRD dataset.
     
-    XRD Dataset must be HDF5. See
-    https://drive.google.com/file/d/1lWCgPNMRAjxH9pqdOKU7hfCNVVKjEcWp/view
-    for example.
+    XRD Dataset must be HDF5.
 
     file_path: Path to HDF5 (.h5) file.
     """
