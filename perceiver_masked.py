@@ -14,7 +14,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Set up model
 
-config = PerceiverConfig(d_latent = 128, d_model=10000)
+config = PerceiverConfig(d_latents = 128, d_model=10000)
 decoder = PerceiverBasicDecoder(
     config,
     num_channels=config.d_latents,
