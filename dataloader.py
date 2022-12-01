@@ -9,6 +9,8 @@ DataLoader.
 import h5py
 import numpy as np
 from os import path
+
+import torch
 from torch.utils.data import Dataset, DataLoader
 
 
@@ -35,9 +37,7 @@ NUM_WORKERS = 0
 class XRDDataset(Dataset):
     """Represents an XRD dataset.
     
-    XRD Dataset must be HDF5. See
-    https://drive.google.com/file/d/1lWCgPNMRAjxH9pqdOKU7hfCNVVKjEcWp/view
-    for example.
+    XRD Dataset must be HDF5.
 
     file_path: Path to HDF5 (.h5) file.
     """
@@ -53,8 +53,12 @@ class XRDDataset(Dataset):
     
     def __getitem__(self, index: int) -> np.ndarray:
         """Returns an XRD spectra array with shape (10005,)."""
-        return self.xrd[index]
 
+        # Last 5 elements in XRD data aren't part of the spectra
+        sample = self.xrd[index][:-5]
+
+        # Add an axis to the array to fit the Perceiver input
+        return torch.from_numpy(sample)[None, :]
 
 xrd_dataset = XRDDataset(XRD_DATA_PATH)
 xrd_dataloader = DataLoader(
