@@ -1,0 +1,17 @@
+#!/bin/bash
+#SBATCH -A als
+#SBATCH -C gpu
+#SBATCH -q regular
+#SBATCH -t 10:00:00
+#SBATCH -N 1
+#SBATCH --ntasks-per-node=4
+#SBATCH -c 32
+#SBATCH --gpus-per-task=1
+#SBATCH --output=vanilla.out
+#SBATCH --error=vanilla.err
+#SBATCH --mail-type=begin,end,fail
+#SBATCH --mail-user=hasitha@berkeley.edu
+
+export SLURM_CPU_BIND="cores"
+export HDF5_USE_FILE_LOCKING=FALSE
+srun python /global/homes/h/hasitha/latent_xrd/vanilla.py
