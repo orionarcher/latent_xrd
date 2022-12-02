@@ -7,8 +7,8 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=32
 #SBATCH --gpus-per-node=4
-#SBATCH --output=perceiver_small.out
-#SBATCH --error=perceiver_small.err
+#SBATCH --output=perceiver_small_random.out
+#SBATCH --error=perceiver_small_random.err
 #SBATCH --mail-type=begin,end,fail
 #SBATCH --mail-user=hasitha@berkeley.edu
 
