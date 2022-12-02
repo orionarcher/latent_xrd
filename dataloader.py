@@ -14,7 +14,7 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 
 
-XRD_DATA_PATH = "icsd_data_189476_10000_cry_extinction_space_density_vol.h5"
+XRD_DATA_PATH = "/pscratch/sd/h/hasitha/xrd/icsd_data_189476_10000_cry_extinction_space_density_vol.h5"
 
 if not path.exists(XRD_DATA_PATH):
     raise FileNotFoundError(
