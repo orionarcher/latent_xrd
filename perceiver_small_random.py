@@ -82,7 +82,7 @@ def train_model(num_epochs=100):
     optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-5)
     for epoch in range(num_epochs):
         for idx, data in enumerate(binary_dataloader):
-            data = data.reshape(2, D_INPUT, 1)
+            data = data.reshape(32, D_INPUT, 1)
             data = data.float()
             # data = data.to(device)
             # ===================forward=====================
