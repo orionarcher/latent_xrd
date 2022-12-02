@@ -110,7 +110,7 @@ def train_model(num_epochs=100):
 # Train the model
 
 model.train(True)
-train_model(num_epochs=1)
+train_model(num_epochs=100)
 model.train(False)
 
 print('Finished Training, saving the model')
