@@ -85,7 +85,7 @@ def train_model(num_epochs=100):
     optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-5)
     for epoch in range(num_epochs):
         for idx, data in enumerate(xrd_dataloader):
-            data = data.reshape(32, 10000, 1)
+            data = data.reshape(-1, 10000, 1)
             data = data.float()
             data = data.to(device)
             # ===================forward=====================
@@ -95,6 +95,9 @@ def train_model(num_epochs=100):
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+
+            if idx % 50 == 0:
+                print(f"Finished batch {idx} in epoch {epoch + 1}. Loss: {loss.item():.4f}")
 
         print('epoch [{}/{}], loss:{:.4f}'.format(epoch + 1, num_epochs, loss.item()))
         outputs.append((epoch, data, output))
