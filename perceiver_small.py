@@ -96,9 +96,12 @@ def train_model(num_epochs=100):
             loss.backward()
             optimizer.step()
 
+            if idx % 3000 == 0:
+                torch.save(model.state_dict(), f'/pscratch/sd/h/hasitha/xrd/perceiver_small_epoch_{epoch}batch_{idx}.pth')
             if idx % 50 == 0:
                 print(f"Finished batch {idx} in epoch {epoch + 1}. Loss: {loss.item():.4f}")
-
+            
+        
         print('epoch [{}/{}], loss:{:.4f}'.format(epoch + 1, num_epochs, loss.item()))
         outputs.append((epoch, data, output))
 
