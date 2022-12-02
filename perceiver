@@ -21,4 +21,4 @@ export HDF5_USE_FILE_LOCKING=FALSE
 export MASTER_ADDR=$(hostname)
 export MASTER_PORT=29500
 
-srun -l -u python /global/homes/h/hasitha/latent_xrd/perceiver.py -d nccl --rank-gpu --ranks-per-node=${SLURM_NTASKS_PER_NODE} $@
+srun -l -u python /global/homes/h/hasitha/latent_xrd/perceiver_script.py -d nccl --rank-gpu --ranks-per-node=${SLURM_NTASKS_PER_NODE} $@
