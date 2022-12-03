@@ -82,7 +82,8 @@ def train_model(num_epochs=100):
     optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-5)
     for epoch in range(num_epochs):
         for idx, data in enumerate(binary_dataloader):
-            data = data.reshape(32, D_INPUT, 1)
+            batch_size = 32
+            data = data.reshape(batch_size, D_INPUT, 1)
             data = data.float()
             # data = data.to(device)
             # ===================forward=====================
@@ -93,7 +94,7 @@ def train_model(num_epochs=100):
             loss.backward()
             optimizer.step()
 
-            n_correct = torch.sum(torch.round(output) == data[:, :, 0]) / 2
+            n_correct = torch.sum(torch.round(output) == data[:, :, 0]) / batch_size
 
             if idx % 2500 == 0:
                 torch.save(model.state_dict(), f'/pscratch/sd/h/hasitha/xrd/perciever_small_random/perceiver_small_random_epoch_{epoch}batch_{idx}.pth')
