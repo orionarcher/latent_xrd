@@ -21,6 +21,7 @@ model = ViTMAEForPreTraining(configuration)
 configuration = model.config
 model= nn.DataParallel(model)
 model.to(device)
+mse_loss = nn.MSELoss()
 
 # Accessing the model configuration
 
