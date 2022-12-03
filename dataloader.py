@@ -193,7 +193,7 @@ class SquareBinaryDataset(Dataset):
         """Returns an XRD spectra array with shape (10005,)."""
 
         # Last 5 elements in XRD data aren't part of the spectra
-        zeros = np.random.choice(self.indexes, size=5000)
+        zeros = np.random.choice(self.indexes, size=100)
         ones = np.ones(10000)
         ones[zeros] = 0
 
