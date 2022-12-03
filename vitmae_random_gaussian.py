@@ -61,5 +61,5 @@ def train_model(num_epochs=100):
 # Train the model
 
 model.train(True)
-train_model(num_epochs=20)
+train_model(num_epochs=100)
 model.train(False)
