@@ -86,7 +86,7 @@ def train_model(num_epochs=100):
     for epoch in range(num_epochs):
         for idx, data in enumerate(binary_dataloader):
             batch_size = 32
-            data = data.reshape(batch_size, D_INPUT, 1)
+            data = data.reshape(-1, D_INPUT, 1)
             data = data.float()
             data = data.to(device)
             # ===================forward=====================
