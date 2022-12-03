@@ -18,11 +18,12 @@ configuration = ViTMAEConfig(
 
 # Initializing a model (with random weights) from the vit-mae-base style configuration
 model = ViTMAEForPreTraining(configuration)
+configuration = model.config
 model= nn.DataParallel(model)
 model.to(device)
 
 # Accessing the model configuration
-configuration = model.config
+
 
 print('----------------------------------------------------------------')
 
