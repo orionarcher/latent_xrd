@@ -14,6 +14,7 @@ from perceiver.model.vision.image_classifier import ImageInputAdapter
 from torch import nn, optim
 
 from dataloader import xrd_dataloader, binary_dataloader
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 from perceiver.model.core import (
     PerceiverDecoder,
@@ -67,6 +68,8 @@ decoder = PerceiverDecoder(
 # Perceiver IO image classifier
 mse_loss = nn.MSELoss()
 model = PerceiverIO(encoder, decoder)
+model= nn.DataParallel(model)
+model.to(device)
 
 print('----------------------------------------------------------------')
 
@@ -85,7 +88,7 @@ def train_model(num_epochs=100):
             batch_size = 32
             data = data.reshape(batch_size, D_INPUT, 1)
             data = data.float()
-            # data = data.to(device)
+            data = data.to(device)
             # ===================forward=====================
             output = model(data)
             loss = mse_loss(output, data.squeeze())
