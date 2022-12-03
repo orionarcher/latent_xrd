@@ -1,6 +1,4 @@
 import torch
-import torch.distributed as dist
-import torch.multiprocessing as mp
 from transformers import (
     PerceiverModel,
     PerceiverConfig,
@@ -8,25 +6,10 @@ from transformers import (
 from transformers.models.perceiver.modeling_perceiver import PerceiverBasicDecoder
 
 from torch import nn, optim
-from torch.nn.parallel import DistributedDataParallel as DDP
 
 from dataloader import xrd_dataloader
 from dataloader import XRDDataset
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-######################
-def setup(rank, world_size):
-    os.environ['MASTER_ADDR'] = 'localhost'
-    os.environ['MASTER_PORT'] = '12355'
-
-    # initialize the process group
-    dist.init_process_group("gloo", rank=rank, world_size=world_size)
-
-def cleanup():
-    dist.destroy_process_group()
-
-######################
-
 
 # Set up model
 
@@ -61,7 +44,7 @@ def train_model(num_epochs=100):
     outputs = []
     optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-5)
     for epoch in range(num_epochs):
-        for data in xrd_dataloader:
+        for idx, data in enumerate(xrd_dataloader):
             data = data.float()
             data = data.to(device)
             # ===================forward=====================
@@ -72,7 +55,12 @@ def train_model(num_epochs=100):
             loss.backward()
             optimizer.step()
 
-        print('epoch [{}/{}], loss:{:.4f}'.format(epoch + 1, num_epochs, loss.item()))
+            if idx % 2500 == 0:
+                torch.save(model.state_dict(), f'/pscratch/sd/h/hasitha/xrd/perceiver/perceiver_epoch_{epoch}batch_{idx}.pth')
+            if idx % 50 == 0:
+                print(f"Finished batch {idx} in epoch {epoch + 1}. Loss: {loss.item():.4f}")
+
+        print('Epoch [{}/{}], loss:{:.4f}'.format(epoch + 1, num_epochs, loss.item()))
         outputs.append((epoch, data, output))
 
 
