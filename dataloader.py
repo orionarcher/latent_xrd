@@ -238,7 +238,7 @@ class SquareBinaryDatasetGaussian(Dataset):
         """Returns an XRD spectra array with shape (10005,)."""
 
         # Last 5 elements in XRD data aren't part of the spectra
-        ones = np.random.choice(self.indexes, size=10000)
+        ones = np.random.choice(self.indexes, size=100)
         zeros = np.zeros(10000)
         zeros[ones] = 1
         
