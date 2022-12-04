@@ -130,6 +130,14 @@ class SquareXRDDataset(Dataset):
 
         # Last 5 elements in XRD data aren't part of the spectra
         sample = self.xrd[index][:-5]
+        edge_sqrt = 10
+        tile = np.reshape(np.arange(edge_sqrt ** 2), (edge_sqrt,edge_sqrt))
+        a = np.repeat(tile, edge_sqrt, axis=0)
+        b = np.repeat(a, edge_sqrt, axis=1)
+        tiled = np.tile(tile, (edge_sqrt, edge_sqrt))
+        arr = tiled + b * edge_sqrt ** 2
+        sample = sample[arr]
+
         square = sample.reshape(1, 100, 100)
 
         # Add an axis to the array to fit the Perceiver input

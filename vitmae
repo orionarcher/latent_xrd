@@ -7,7 +7,7 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=32
 #SBATCH --gpus-per-node=4
-#SBATCH --output=vitmae.out
+#SBATCH --output=vitmae_xrd_newtiling.out
 #SBATCH --error=vitmae.err
 #SBATCH --mail-type=begin,end,fail
 #SBATCH --mail-user=hasitha@berkeley.edu

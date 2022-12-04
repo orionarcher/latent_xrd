@@ -49,7 +49,7 @@ def train_model(num_epochs=100):
             optimizer.step()
 
             if idx % 2500 == 0:
-                torch.save(model.state_dict(), f'/pscratch/sd/h/hasitha/xrd/vitmae/perceiver_small_random_epoch_{epoch}batch_{idx}.pth')
+                torch.save(model.state_dict(), f'/pscratch/sd/h/hasitha/xrd/vitame_xrd_newtiling/vitame_xrd_newtiling_epoch_{epoch}_batch_{idx}.pth')
             if idx % 5 == 0:
                 print(f"Finished batch {idx} in epoch {epoch + 1}. Loss: {loss.item():.4f}")
 
@@ -63,3 +63,7 @@ def train_model(num_epochs=100):
 model.train(True)
 train_model(num_epochs=100)
 model.train(False)
+
+print('Finished Training, saving the model')
+torch.save(model.state_dict(), '/global/homes/h/hasitha/latent_xrd/vitame_xrd_newtiling.pth')
+print('Model saved')
