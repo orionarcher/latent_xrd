@@ -226,7 +226,7 @@ class SquareBinaryDatasetGaussian(Dataset):
 
     def __init__(self, file_path: str):
         file = h5py.File(file_path, "r")
-        self.indexes = np.arange(0, 99)
+        self.indexes = np.arange(0, 10000)
 
         self.xrd: h5py.Dataset = file["data"]
         self.num_samples: int = self.xrd.shape[0]
@@ -238,7 +238,7 @@ class SquareBinaryDatasetGaussian(Dataset):
         """Returns an XRD spectra array with shape (10005,)."""
 
         # Last 5 elements in XRD data aren't part of the spectra
-        ones = np.random.choice(self.indexes, size=100)
+        ones = np.random.choice(self.indexes, size=10000)
         zeros = np.zeros(10000)
         zeros[ones] = 1
         
