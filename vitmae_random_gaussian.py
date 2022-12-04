@@ -53,7 +53,7 @@ def train_model(num_epochs=100):
             if idx % 5 == 0:
                 print(f"Finished batch {idx} in epoch {epoch + 1}. Loss: {loss.item():.4f}")
 
-        print('epoch [{}/{}], loss:{:.4f}'.format(epoch + 1, num_epochs, loss.item()))
+        print('epoch [{}/{}], loss:{:.7f}'.format(epoch + 1, num_epochs, loss.item()))
         outputs.append((epoch, data, output))
 
 
