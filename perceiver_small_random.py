@@ -14,6 +14,7 @@ from perceiver.model.vision.image_classifier import ImageInputAdapter
 from torch import nn, optim
 
 from dataloader import xrd_dataloader, binary_dataloader
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 from perceiver.model.core import (
     PerceiverDecoder,
@@ -67,6 +68,8 @@ decoder = PerceiverDecoder(
 # Perceiver IO image classifier
 mse_loss = nn.MSELoss()
 model = PerceiverIO(encoder, decoder)
+model= nn.DataParallel(model)
+model.to(device)
 
 print('----------------------------------------------------------------')
 
@@ -82,9 +85,10 @@ def train_model(num_epochs=100):
     optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-5)
     for epoch in range(num_epochs):
         for idx, data in enumerate(binary_dataloader):
-            data = data.reshape(32, D_INPUT, 1)
+            batch_size = 32
+            data = data.reshape(-1, D_INPUT, 1)
             data = data.float()
-            # data = data.to(device)
+            data = data.to(device)
             # ===================forward=====================
             output = model(data)
             loss = mse_loss(output, data.squeeze())
@@ -93,7 +97,7 @@ def train_model(num_epochs=100):
             loss.backward()
             optimizer.step()
 
-            n_correct = torch.sum(torch.round(output) == data[:, :, 0]) / 2
+            n_correct = torch.sum(torch.round(output) == data[:, :, 0]) / batch_size
 
             if idx % 2500 == 0:
                 torch.save(model.state_dict(), f'/pscratch/sd/h/hasitha/xrd/perciever_small_random/perceiver_small_random_epoch_{epoch}batch_{idx}.pth')
