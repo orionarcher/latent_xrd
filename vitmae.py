@@ -35,20 +35,47 @@ for param_tensor in model.state_dict():
 print('----------------------------------------------------------------')
 print('number of parameters: ', sum(p.numel() for p in model.parameters()))
 
+
+
+def tile(sample):
+    edge_sqrt = 10
+    tile = np.reshape(np.arange(edge_sqrt ** 2), (edge_sqrt,edge_sqrt))
+    a = np.repeat(tile, edge_sqrt, axis=0)
+    b = np.repeat(a, edge_sqrt, axis=1)
+    tiled = np.tile(tile, (edge_sqrt, edge_sqrt))
+    arr = tiled + b * edge_sqrt ** 2
+    sample = sample[arr]
+
+    return sample.reshape(1, 100, 100)
+
+
+
+
+
+
 def train_model(num_epochs=100):
     outputs = []
     optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-5)
     for epoch in range(num_epochs):
-        for idx, data in enumerate(xrd_dataloader):
+        for idx, data in enumerate(square_xrd_dataloader):
             gaussian_data = []
             for xrd in data:
                 gaussian_data.append(scipy.ndimage.gaussian_filter1d(xrd, 4))
             gaussian_data = np.array(gaussian_data)
 
-            data = data.reshape(-1, 1, 100, 100)
-            gaussian_data = gaussian_data.reshape(-1, 1, 100, 100)
-            data = data.float()
+            data_tiled = []
+            
+            for sample in data:
+                data_tiled.append(tile(sample[0].numpy()))
+            data = np.array(data_tiled)
 
+            gaussian_data_tiled = []
+            for sample in gaussian_data:
+                gaussian_data_tiled.append(tile(sample[0]))
+            
+            gaussian_data = np.array(gaussian_data_tiled)
+            
+            data = torch.from_numpy(data).float()
             gaussian_data = torch.from_numpy(gaussian_data).float()
 
             # ===================forward=====================
@@ -61,7 +88,7 @@ def train_model(num_epochs=100):
             optimizer.step()
 
             if idx % 2500 == 0:
-                torch.save(model.state_dict(), f'/pscratch/sd/h/hasitha/xrd/vitame_xrd_newtiling/vitame_xrd_newtiling_epoch_{epoch}_batch_{idx}.pth')
+                torch.save(model.state_dict(), f'/pscratch/sd/h/hasitha/xrd/vitmae_loss_xrd_xrdgaussian/vitmae_loss_xrd_xrdgaussian_epoch_{epoch}_batch_{idx}.pth')
             if idx % 5 == 0:
                 print(f"Finished batch {idx} in epoch {epoch + 1}. Loss: {loss.item():.4f}")
 
@@ -77,5 +104,5 @@ train_model(num_epochs=100)
 model.train(False)
 
 print('Finished Training, saving the model')
-torch.save(model.state_dict(), '/global/homes/h/hasitha/latent_xrd/vitame_xrd_newtiling.pth')
+torch.save(model.state_dict(), '/global/homes/h/hasitha/latent_loss_xrd_xrdgaussian/vitame_xrd_.pth')
 print('Model saved')
