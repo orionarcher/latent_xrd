@@ -1,6 +1,5 @@
 from transformers import ViTMAEConfig, ViTMAEModel, ViTMAEForPreTraining
-from dataloader import BATCH_SIZE, square_xrd_dataloader_gaussian
-import torch
+from dataloader import BATCH_SIZE, square_xrd_dataloader
 from torch import nn, optim
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -34,14 +33,45 @@ for param_tensor in model.state_dict():
 print('----------------------------------------------------------------')
 print('number of parameters: ', sum(p.numel() for p in model.parameters()))
 
+def tile(sample):
+    edge_sqrt = 10
+    tile = np.reshape(np.arange(edge_sqrt ** 2), (edge_sqrt,edge_sqrt))
+    a = np.repeat(tile, edge_sqrt, axis=0)
+    b = np.repeat(a, edge_sqrt, axis=1)
+    tiled = np.tile(tile, (edge_sqrt, edge_sqrt))
+    arr = tiled + b * edge_sqrt ** 2
+    sample = sample[arr]
+
+    return sample.reshape(1, 100, 100)
+
+
 def train_model(num_epochs=100):
     outputs = []
     optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-5)
     for epoch in range(num_epochs):
-        for idx, data in enumerate(square_xrd_dataloader_gaussian):
+        for idx, data in enumerate(square_xrd_dataloader):
+            gaussian_data = []
+            for xrd in data:
+                gaussian_data.append(scipy.ndimage.gaussian_filter1d(xrd, 4))
+            gaussian_data = np.array(gaussian_data)
+
+            data_tiled = []
+            
+            for sample in data:
+                data_tiled.append(tile(sample[0].numpy()))
+            data = np.array(data_tiled)
+
+            gaussian_data_tiled = []
+            for sample in gaussian_data:
+                gaussian_data_tiled.append(tile(sample[0]))
+            
+            gaussian_data = np.array(gaussian_data_tiled)
+            
+            data = torch.from_numpy(data).float()
+            gaussian_data = torch.from_numpy(gaussian_data).float()
             # ===================forward=====================
-            data = data.to(device)
-            output = model(data)
+            gaussian_data = gaussian_data.to(device)
+            output = model(gaussian_data)
             loss = mse_loss(output.logits, data.squeeze())
             # ===================backward====================
             optimizer.zero_grad()
