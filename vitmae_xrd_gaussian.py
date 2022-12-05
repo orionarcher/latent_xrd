@@ -74,9 +74,10 @@ def train_model(num_epochs=100):
             data = torch.from_numpy(data).float()
             gaussian_data = torch.from_numpy(gaussian_data).float()
             # ===================forward=====================
+            data = data.to(device)
             gaussian_data = gaussian_data.to(device)
             output = model(gaussian_data)
-            loss = mse_loss(output.logits, data.squeeze())
+            loss = mse_loss(output.logits, gaussian_data.squeeze())
             # ===================backward====================
             optimizer.zero_grad()
             loss.backward()
