@@ -3,6 +3,7 @@ from dataloader import BATCH_SIZE, square_xrd_dataloader, xrd_dataloader
 import torch
 from torch import nn, optim
 import numpy as np
+import scipy
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

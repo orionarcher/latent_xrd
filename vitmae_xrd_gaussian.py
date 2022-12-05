@@ -1,5 +1,5 @@
 from transformers import ViTMAEConfig, ViTMAEModel, ViTMAEForPreTraining
-from dataloader import BATCH_SIZE, square_xrd_dataloader
+from dataloader import BATCH_SIZE, xrd_dataloader
 import torch
 from torch import nn, optim
 import scipy
@@ -53,7 +53,7 @@ def train_model(num_epochs=100):
     outputs = []
     optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-5)
     for epoch in range(num_epochs):
-        for idx, data in enumerate(square_xrd_dataloader):
+        for idx, data in enumerate(xrd_dataloader):
             gaussian_data = []
             for xrd in data:
                 gaussian_data.append(scipy.ndimage.gaussian_filter1d(xrd, 4))
