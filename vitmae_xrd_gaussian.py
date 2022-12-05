@@ -1,6 +1,10 @@
 from transformers import ViTMAEConfig, ViTMAEModel, ViTMAEForPreTraining
 from dataloader import BATCH_SIZE, square_xrd_dataloader
+import torch
 from torch import nn, optim
+import scipy
+import numpy as np
+
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
