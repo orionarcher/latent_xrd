@@ -9,10 +9,12 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = ViTForImageClassification.from_pretrained("./classification_xrd_xrdgaussian/")
 model= nn.DataParallel(model)
 model.to(device)
-cross_entropy = nn.CrossEntropyLoss()
-soft_max = torch.nn.Softmax(dim = 1)
+
+
 
 def train_model(num_epochs=100):
+    cross_entropy = nn.CrossEntropyLoss()
+    soft_max = nn.Softmax(dim = 1)
     outputs = []
     optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-5)
     for epoch in range(num_epochs):
@@ -22,7 +24,7 @@ def train_model(num_epochs=100):
             batch_size = data.shape[0]
             rows = np.arange(batch_size)
             one_hot = np.zeros((batch_size, 7))
-            one_hot[rows, classification.int().numpy()] = 1 
+            one_hot[rows, classification.int().numpy()[:,0]] = 1  
             one_hot = torch.from_numpy(one_hot)  
             # ===================forward===================== 
             data = data.to(device)
