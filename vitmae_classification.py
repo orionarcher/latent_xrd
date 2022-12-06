@@ -27,9 +27,9 @@ def train_model(num_epochs=100):
             # ===================forward===================== 
             data = data.to(device)
             one_hot = one_hot.to(device)
-            output = model(one_hot)
+            output = model(data)
             soft_max_output = soft_max(output.logits)
-            loss = cross_entropy(soft_max_output, )
+            loss = cross_entropy(soft_max_output, one_hot)
             # ===================backward====================
             optimizer.zero_grad()
             loss.backward()
