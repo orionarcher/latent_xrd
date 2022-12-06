@@ -22,12 +22,14 @@ def train_model(num_epochs=100):
             batch_size = data.shape[0]
             rows = np.arange(batch_size)
             one_hot = np.zeros((batch_size, 7))
-            one_hot[rows, classification.int().numpy()] = 1   
+            one_hot[rows, classification.int().numpy()] = 1 
+            one_hot = torch.from_numpy(one_hot)  
             # ===================forward===================== 
             data = data.to(device)
-            output = model(data)
+            one_hot = one_hot.to(device)
+            output = model(one_hot)
             soft_max_output = soft_max(output.logits)
-            loss = cross_entropy(soft_max_output, torch.from_numpy(one_hot))
+            loss = cross_entropy(soft_max_output, )
             # ===================backward====================
             optimizer.zero_grad()
             loss.backward()
