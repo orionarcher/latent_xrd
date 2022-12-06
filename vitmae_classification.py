@@ -4,6 +4,7 @@ import torch
 import numpy as np
 from torch import nn,optim
 
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = ViTForImageClassification.from_pretrained("./classification/")
 model= nn.DataParallel(model)
@@ -54,4 +55,3 @@ print('Model saved')
 
 
 
-/global/homes/h/hasitha/latent_xrd/classification/
