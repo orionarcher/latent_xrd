@@ -57,6 +57,8 @@ def train_model(num_epochs=100):
             loss.backward()
             optimizer.step()
 
+            if idx % 1500 == 0:
+                torch.save(model.state_dict(), f'/pscratch/sd/h/hasitha/xrd/perceiver_masked/perceiver_masked_epoch_{epoch}_batch_{idx}.pth')
             if idx % 5 == 0:
                 print(f"Finished batch {idx} in epoch {epoch + 1}. Loss: {loss.item():.4f}")
 
@@ -69,6 +71,6 @@ train_model(num_epochs=100)
 model.train(False)
 
 print('Finished Training, saving the model')
-torch.save(model.state_dict(), '/global/homes/h/hasitha/latent_xrd/masked_perceiver.pth')
+torch.save(model.state_dict(), '/global/homes/h/hasitha/latent_xrd/perceiver_masked.pth')
 print('Model saved')
 
