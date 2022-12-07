@@ -7,8 +7,8 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=32
 #SBATCH --gpus-per-node=4
-#SBATCH --output=vitmae_classification_10_masking.out
-#SBATCH --error=vitmae_classification_10_masking.err
+#SBATCH --output=vitmae_classification_10_masking_80_data.out
+#SBATCH --error=vitmae_classification_10_masking_80_data.err
 #SBATCH --mail-type=begin,end,fail
 #SBATCH --mail-user=hasitha@berkeley.edu
 
