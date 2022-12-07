@@ -20,7 +20,7 @@ def train_model(num_epochs=100):
     for epoch in range(num_epochs):
         for idx, data in enumerate(square_xrd_classification_dataloader):
             classification = data[:, :, -1, 0]-1
-            classification_gpu = classification.long().numpy()[:,0]
+            classification_gpu = torch.from_numpy(classification.long().numpy()[:,0])
             data = data[:, :, :-1, :]
             # batch_size = data.shape[0]
             # rows = np.arange(batch_size)
