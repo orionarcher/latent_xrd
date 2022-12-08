@@ -13,8 +13,8 @@ from perceiver.model.vision.image_classifier import ImageInputAdapter
 
 from torch import nn, optim
 
-from dataloader import xrd_dataloader
-from dataloader import XRDDataset
+from dataloader import xrd_dataloader, binary_dataloader
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 from perceiver.model.core import (
     PerceiverDecoder,
@@ -27,18 +27,17 @@ from perceiver.model.core.adapter import TrainableQueryProvider
 
 from perceiver.model.vision.image_classifier import ImageInputAdapter
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+D_INPUT = 100
 
 # Fourier-encodes pixel positions and flatten along spatial dimensions
 input_adapter = ImageInputAdapter(
-  image_shape=(10000, 1),  # M = 224 * 224
-  num_frequency_bands=64,
+  image_shape=(D_INPUT, 1),  # M = 224 * 224
+  num_frequency_bands=32,
 )
 
 # Projects generic Perceiver decoder output to specified number of classes
 output_adapter = ClassificationOutputAdapter(
-  num_classes=10000,
+  num_classes=D_INPUT,
   num_output_query_channels=512,  # F
 )
 
@@ -80,12 +79,14 @@ for param_tensor in model.state_dict():
 print('----------------------------------------------------------------')
 print('number of parameters: ', sum(p.numel() for p in model.parameters()))
 
+
 def train_model(num_epochs=100):
     outputs = []
-    optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-5)
+    optimizer = optim.Adam(model.parameters(), lr=0.01, weight_decay=1e-5)
     for epoch in range(num_epochs):
         for idx, data in enumerate(xrd_dataloader):
-            data = data.reshape(-1, 10000, 1)
+            batch_size = 32
+            data = data.reshape(-1, D_INPUT, 1)
             data = data.float()
             data = data.to(device)
             # ===================forward=====================
@@ -96,12 +97,12 @@ def train_model(num_epochs=100):
             loss.backward()
             optimizer.step()
 
-            if idx % 3000 == 0:
-                torch.save(model.state_dict(), f'/pscratch/sd/h/hasitha/xrd/perceiver_small_epoch_{epoch}batch_{idx}.pth')
-            if idx % 50 == 0:
+            n_correct = torch.sum(torch.round(output) == data[:, :, 0]) / batch_size
+
+            if idx % 5 == 0:
                 print(f"Finished batch {idx} in epoch {epoch + 1}. Loss: {loss.item():.4f}")
-            
-        
+                print(f"The model classified {n_correct:.4f} percent of points correctly.")
+
         print('epoch [{}/{}], loss:{:.4f}'.format(epoch + 1, num_epochs, loss.item()))
         outputs.append((epoch, data, output))
 
@@ -114,5 +115,5 @@ train_model(num_epochs=100)
 model.train(False)
 
 print('Finished Training, saving the model')
-torch.save(model.state_dict(), '/global/homes/h/hasitha/latent_xrd/perceiver_small.pth')
+torch.save(model.state_dict(), './perceiver_small_random.pth')
 print('Model saved')

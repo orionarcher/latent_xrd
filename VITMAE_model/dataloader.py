@@ -34,121 +34,6 @@ NUM_WORKERS = 0
 
 ###############################################################################
 
-
-class XRDDataset(Dataset):
-    """Represents an XRD dataset.
-    
-    XRD Dataset must be HDF5.
-
-    file_path: Path to HDF5 (.h5) file.
-    """
-
-    def __init__(self, file_path: str):
-        file = h5py.File(file_path, "r")
-
-        self.xrd: h5py.Dataset = file["data"]
-        self.num_samples: int = self.xrd.shape[0]
-
-    def __len__(self) -> int:
-        return self.num_samples
-    
-    def __getitem__(self, index: int) -> np.ndarray:
-        """Returns an XRD spectra array with shape (10005,)."""
-
-        # Last 5 elements in XRD data aren't part of the spectra
-        sample = self.xrd[index][:-5]
-
-        # Add an axis to the array to fit the Perceiver input
-        return torch.from_numpy(sample)[None, :]
-
-xrd_dataset = XRDDataset(XRD_DATA_PATH)
-xrd_dataloader = DataLoader(
-    xrd_dataset,
-    batch_size=BATCH_SIZE,
-    shuffle=SHUFFLE,
-    num_workers=NUM_WORKERS
-)
-
-class BinaryDataset(Dataset):
-    """Represents an XRD dataset.
-
-    XRD Dataset must be HDF5.
-
-    file_path: Path to HDF5 (.h5) file.
-    """
-
-    def __init__(self, file_path: str):
-        file = h5py.File(file_path, "r")
-        self.indexes = np.arange(0, 99)
-
-        self.xrd: h5py.Dataset = file["data"]
-        self.num_samples: int = self.xrd.shape[0]
-
-    def __len__(self) -> int:
-        return self.num_samples
-
-    def __getitem__(self, index: int) -> np.ndarray:
-        """Returns an XRD spectra array with shape (10005,)."""
-
-        # Last 5 elements in XRD data aren't part of the spectra
-        zeros = np.random.choice(self.indexes, size=50)
-        ones = np.ones(100)
-        ones[zeros] = 0
-
-
-        # Add an axis to the array to fit the Perceiver input
-        return torch.from_numpy(ones)[None, :]
-
-
-binary_dataset = BinaryDataset(XRD_DATA_PATH)
-binary_dataloader = DataLoader(
-    binary_dataset,
-    batch_size=BATCH_SIZE,
-    shuffle=SHUFFLE,
-    num_workers=NUM_WORKERS
-)
-
-
-class SquareBinaryDataset(Dataset):
-    """Represents an XRD dataset.
-
-    XRD Dataset must be HDF5.
-
-    file_path: Path to HDF5 (.h5) file.
-    """
-
-    def __init__(self, file_path: str):
-        file = h5py.File(file_path, "r")
-        self.indexes = np.arange(0, 99)
-
-        self.xrd: h5py.Dataset = file["data"]
-        self.num_samples: int = self.xrd.shape[0]
-
-    def __len__(self) -> int:
-        return self.num_samples
-
-    def __getitem__(self, index: int) -> np.ndarray:
-        """Returns an XRD spectra array with shape (10005,)."""
-
-        # Last 5 elements in XRD data aren't part of the spectra
-        zeros = np.random.choice(self.indexes, size=100)
-        ones = np.ones(10000)
-        ones[zeros] = 0
-
-
-        # Add an axis to the array to fit the Perceiver input
-        return torch.from_numpy(ones.reshape(1, 100, 100)).float()
-
-
-square_binary_dataset = SquareBinaryDataset(XRD_DATA_PATH)
-square_binary_dataloader = DataLoader(
-    square_binary_dataset,
-    batch_size=BATCH_SIZE,
-    shuffle=SHUFFLE,
-    num_workers=NUM_WORKERS
-)
-
-
 class SquareXRDDataset(Dataset):
     """Represents an XRD dataset.
 
@@ -304,3 +189,140 @@ square_binary_dataloader_gaussian = DataLoader(
     shuffle=SHUFFLE,
     num_workers=NUM_WORKERS
 )
+
+
+class SquareXRDDataset_classification(Dataset):
+    """Represents an XRD dataset.
+
+    XRD Dataset must be HDF5.
+    file_path: Path to HDF5 (.h5) file.
+    """
+
+    def __init__(self, file_path: str):
+        file = h5py.File(file_path, "r")
+
+        self.xrd: h5py.Dataset = file["data"]
+        self.num_samples: int = self.xrd.shape[0]
+
+    def __len__(self) -> int:
+        return int(self.num_samples*0.8)
+
+    def __getitem__(self, index: int) -> np.ndarray:
+        """Returns an XRD spectra array with shape (10005,)."""
+        
+        # Last 5 elements in XRD data aren't part of the spectra
+        sample = self.xrd[index][:-5]
+        classification = self.xrd[index][10000]
+        classification_row = classification * np.ones(100)
+        
+
+        edge_sqrt = 10
+        tile = np.reshape(np.arange(edge_sqrt ** 2), (edge_sqrt,edge_sqrt))
+        a = np.repeat(tile, edge_sqrt, axis=0)
+        b = np.repeat(a, edge_sqrt, axis=1)
+        tiled = np.tile(tile, (edge_sqrt, edge_sqrt))
+        arr = tiled + b * edge_sqrt ** 2
+        sample = sample[arr]
+        sample = np.vstack((sample, classification_row))
+
+        square = sample.reshape(1, 101, 100)
+
+        # Add an axis to the array to fit the Perceiver input
+        return torch.from_numpy(square).float()
+
+square_xrd_classification_dataset = SquareXRDDataset_classification(XRD_DATA_PATH)
+square_xrd_classification_dataloader = DataLoader(
+    square_xrd_classification_dataset,
+    batch_size=BATCH_SIZE,
+    shuffle=SHUFFLE,
+    num_workers=NUM_WORKERS
+)
+
+class test_SquareXRDDataset_classification(Dataset):
+    """Represents an XRD dataset.
+
+    XRD Dataset must be HDF5.
+    file_path: Path to HDF5 (.h5) file.
+    """
+
+    def __init__(self, file_path: str):
+        file = h5py.File(file_path, "r")
+
+        self.xrd: h5py.Dataset = file["data"]
+        self.num_samples: int = self.xrd.shape[0]
+
+    def __len__(self) -> int:
+        return int(self.num_samples*0.2)
+
+    def __getitem__(self, index: int) -> np.ndarray:
+        """Returns an XRD spectra array with shape (10005,)."""
+        index = -index - 1 
+        # Last 5 elements in XRD data aren't part of the spectra
+        sample = self.xrd[index][:-5]
+        classification = self.xrd[index][10000]
+        classification_row = classification * np.ones(100)
+        
+
+        edge_sqrt = 10
+        tile = np.reshape(np.arange(edge_sqrt ** 2), (edge_sqrt,edge_sqrt))
+        a = np.repeat(tile, edge_sqrt, axis=0)
+        b = np.repeat(a, edge_sqrt, axis=1)
+        tiled = np.tile(tile, (edge_sqrt, edge_sqrt))
+        arr = tiled + b * edge_sqrt ** 2
+        sample = sample[arr]
+        sample = np.vstack((sample, classification_row))
+
+        square = sample.reshape(1, 101, 100)
+
+        # Add an axis to the array to fit the Perceiver input
+        return torch.from_numpy(square).float()
+
+test_square_xrd_classification_dataset = test_SquareXRDDataset_classification(XRD_DATA_PATH)
+test_square_xrd_classification_dataloader = DataLoader(
+    test_square_xrd_classification_dataset,
+    batch_size=BATCH_SIZE,
+    shuffle=SHUFFLE,
+    num_workers=NUM_WORKERS
+)
+
+
+class SquareBinaryDatasetGaussian(Dataset):
+    """Represents an XRD dataset.
+    XRD Dataset must be HDF5.
+    file_path: Path to HDF5 (.h5) file.
+    """
+
+    def __init__(self, file_path: str):
+        file = h5py.File(file_path, "r")
+        self.indexes = np.arange(0, 10000)
+
+        self.xrd: h5py.Dataset = file["data"]
+        self.num_samples: int = self.xrd.shape[0]
+
+    def __len__(self) -> int:
+        return self.num_samples
+
+    def __getitem__(self, index: int) -> np.ndarray:
+        """Returns an XRD spectra array with shape (10005,)."""
+
+        # Last 5 elements in XRD data aren't part of the spectra
+        ones = np.random.choice(self.indexes, size=100)
+        zeros = np.zeros(10000)
+        zeros[ones] = 1
+        
+        blured = scipy.ndimage.gaussian_filter1d(zeros, 4)
+        square = blured.reshape(1, 100, 100)
+
+        # Add an axis to the array to fit the Perceiver input
+        return torch.from_numpy(square).float()
+
+
+square_binary_dataset_gaussian = SquareBinaryDatasetGaussian(XRD_DATA_PATH)
+square_binary_dataloader_gaussian = DataLoader(
+    square_binary_dataset_gaussian,
+    batch_size=BATCH_SIZE,
+    shuffle=SHUFFLE,
+    num_workers=NUM_WORKERS
+)
+
+
