@@ -1,21 +1,23 @@
-import numpy as np
-import h5py as h5
-import os
+# -------------------------importing required packages--------------------------
 import torch
-import tqdm
-
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from torch.utils.data import Dataset, DataLoader
 
-from dataloader import XRDDataset
+from dataloader import xrd_dataloader, binary_dataloader
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 class Autoencorders(nn.Module):
+    """constructs the Autoencorder.
+    
+    projects the 10000 dimension XRD data to 512 latent space
+    """
+
     def __init__(self):
         super(Autoencorders, self).__init__()
+        # encorder architecture
         self.encoder = nn.Sequential(
             nn.Linear(10000, 2048),
             nn.ReLU(True),
@@ -24,7 +26,7 @@ class Autoencorders(nn.Module):
             nn.Linear(1024, 512),
             nn.ReLU(True))
 
-
+        # decorder architecture
         self.decoder = nn.Sequential(
             nn.Linear(512, 1024),
             nn.ReLU(True),
@@ -43,7 +45,7 @@ model = Autoencorders()
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model= nn.DataParallel(model)
 model.to(device)
-criterion = nn.MSELoss()
+mse_loss = nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-5)
 
 print('----------------------------------------------------------------')
@@ -54,34 +56,28 @@ for param_tensor in model.state_dict():
 print('----------------------------------------------------------------')
 print('number of parameters: ', sum(p.numel() for p in model.parameters()))
 
-XRD_DATA_PATH = '/pscratch/sd/h/hasitha/xrd/icsd_data_189476_10000_cry_extinction_space_density_vol.h5' # path to the data file
-xrd_dataset = XRDDataset(XRD_DATA_PATH)
-xrd_dataloader = DataLoader(
-    xrd_dataset,
-    batch_size=32,
-    shuffle=True,
-    num_workers=0
-)
-
 
 print('start training')
 num_epochs = 100
 outputs = []
 for epoch in range(num_epochs):
-    for data in xrd_dataloader:
+    lst_loss = []
+    for data in binary_dataloader:
         data = data.float()
         data = data.to(device)
         # ===================forward=====================
         output = model(data)
-        loss = criterion(output, data)
+        loss = mse_loss(output, data)
+        lst_loss.append(loss.item())
         # ===================backward====================
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
-    print('epoch [{}/{}], loss:{:.4f}'.format(epoch + 1, num_epochs, loss.item()))
+    print('epoch [{}/{}], loss:{:.7f}'.format(epoch + 1, num_epochs, sum(lst_loss)/len(lst_loss)))
     outputs.append((epoch, data, output))
 
 print('Finished Training, saving the model')
-torch.save(model.state_dict(), '/global/homes/h/hasitha/latent_xrd/vanilla.pth')
+# change the path accordingly
+torch.save(model.state_dict(), './vanilla.pth')
 print('Model saved')

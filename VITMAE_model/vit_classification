@@ -7,8 +7,8 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=32
 #SBATCH --gpus-per-node=4
-#SBATCH --output=test_results.out
-#SBATCH --error=test_results.err
+#SBATCH --output=vitmae_classification.out
+#SBATCH --error=vitmae_classification.err
 #SBATCH --mail-type=begin,end,fail
 #SBATCH --mail-user=hasitha@berkeley.edu
 
@@ -24,4 +24,4 @@ export MASTER_PORT=29500
 
 
 
-srun -l -u python /global/homes/h/hasitha/latent_xrd/test_results.py -d nccl --rank-gpu --ranks-per-node=${SLURM_NTASKS_PER_NODE} $@
+srun -l -u python /global/homes/h/hasitha/latent_xrd/vit_classification.py -d nccl --rank-gpu --ranks-per-node=${SLURM_NTASKS_PER_NODE} $@
