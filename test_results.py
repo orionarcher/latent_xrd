@@ -10,6 +10,8 @@ path = './classification_xrd_final'
 model = ViTForImageClassification.from_pretrained(path )
 
 model.load_state_dict(torch.load("./test_model.pth",map_location='cpu'))
+model= nn.DataParallel(model)
+model.to(device)
 
 from dataloader import test_square_xrd_classification_dataloader
 total_sum = 0
